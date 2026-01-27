@@ -1,0 +1,59 @@
+.fines {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.fines h1 {
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.fines-filter {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.fines-filter label {
+  color: #333;
+  font-weight: bold;
+}
+
+.fines-filter select {
+  padding: 0.5rem;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.fines-filter select:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 3rem;
+  background: white;
+  border-radius: 4px;
+}
+
+.fines-list {
+  display: flex;
+  flex-direction: column;
+}
