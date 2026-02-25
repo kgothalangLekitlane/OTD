@@ -5,10 +5,12 @@ module.exports = (req, res, next) => {
   if (!token) return res.status(401).json({ message: "No token" });
 
   try {
-    const decoded = jwt.verify(token, "secret123");
+    const secret = process.env.JWT_SECRET || 'secret123';
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
-  } catch {
+  } catch (err) {
+    console.error('Auth middleware error', err && err.message);
     return res.status(401).json({ message: "Invalid token" });
   }
 };

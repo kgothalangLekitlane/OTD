@@ -13,8 +13,9 @@ function LicenseLookup() {
     if (!licenseNumber.trim()) return;
 
     try {
-      const data = await request('GET', `/licenses/${licenseNumber}`);
-      setResult(data);
+      // backend lookup endpoint: /license/lookup/:idNumber
+      const data = await request('GET', `/license/lookup/${licenseNumber}`);
+      setResult(data); // { user, license }
     } catch (err) {
       setResult(null);
     }
@@ -45,19 +46,19 @@ function LicenseLookup() {
           <div className="info-grid">
             <div className="info-item">
               <strong>License Number:</strong>
-              <p>{result.number}</p>
+              <p>{result.license?.licenseNumber || 'N/A'}</p>
             </div>
             <div className="info-item">
               <strong>Status:</strong>
-              <p>{result.status}</p>
+              <p>{result.license?.status || 'N/A'}</p>
             </div>
             <div className="info-item">
               <strong>Expiry Date:</strong>
-              <p>{new Date(result.expiryDate).toLocaleDateString()}</p>
+              <p>{result.license?.expiryDate ? new Date(result.license.expiryDate).toLocaleDateString() : 'N/A'}</p>
             </div>
             <div className="info-item">
-              <strong>Class:</strong>
-              <p>{result.class}</p>
+              <strong>Classes:</strong>
+              <p>{(result.license?.vehicleClasses || []).join(', ') || 'N/A'}</p>
             </div>
           </div>
         </div>

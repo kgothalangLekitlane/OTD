@@ -15,16 +15,22 @@ function Fines() {
 
   const fetchFines = async () => {
     try {
-      const data = await request('GET', '/fines');
+      // backend exposes user-specific fines at /fines/my
+      const data = await request('GET', '/fines/my');
       setFines(data);
     } catch (err) {
-      console.error('Failed to fetch fines');
+      console.error('Failed to fetch fines', err);
     }
   };
 
-  const filteredFines = filter === 'all' 
-    ? fines 
-    : fines.filter(fine => fine.status.toLowerCase() === filter.toLowerCase());
+  // normalize statuses: backend uses 'unpaid'|'paid'
+  const filteredFines = filter === 'all'
+    ? fines
+    : fines.filter(fine => {
+      const s = (fine.status || '').toLowerCase();
+      if (filter === 'pending') return s === 'unpaid' || s === 'pending';
+      return s === filter.toLowerCase();
+    });
 
   return (
     <div className="fines">
@@ -50,7 +56,7 @@ function Fines() {
 
       <div className="fines-list">
         {filteredFines.map(fine => (
-          <FineCard key={fine.id} fine={fine} />
+          <FineCard key={fine._id || fine.id} fine={fine} />
         ))}
       </div>
     </div>
