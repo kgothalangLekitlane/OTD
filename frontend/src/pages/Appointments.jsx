@@ -1,36 +1,40 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useApi } from '../context/ApiContext';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Loading from '../components/Loading';
 import './Appointments.css';
 
 function Appointments() {
-  const [appointments, setAppointments] = useState([]);
   const [formData, setFormData] = useState({
     date: '',
     time: '',
-    type: ''
+    type: '',
+    testingCenter: ''
   });
-  const { request, loading, error } = useApi();
+  const { request, fetcher } = useApi();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
+  const { data: apptsResult = { data: [] }, isLoading, isError } = useQuery(
+    ['myAppointments'],
+    () => fetcher('/appointments/my'),
+    { staleTime: 30_000 }
+  );
+  const appointments = apptsResult.data || [];
 
-  const fetchAppointments = async () => {
-    try {
-      const data = await request('GET', '/appointments');
-      setAppointments(data);
-    } catch (err) {
-      console.error('Failed to fetch appointments');
+  const createMutation = useMutation(
+    (newAppt) => request('POST', '/appointments', newAppt),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['myAppointments']);
+      }
     }
-  };
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await request('POST', '/appointments', formData);
+      await createMutation.mutateAsync(formData);
       setFormData({ date: '', time: '', type: '' });
-      fetchAppointments();
     } catch (err) {
       console.error('Failed to create appointment');
     }
@@ -61,9 +65,8 @@ function Appointments() {
                 required
               >
                 <option value="">Select type</option>
-                <option value="renewal">License Renewal</option>
-                <option value="test">Driving Test</option>
-                <option value="inspection">Vehicle Inspection</option>
+                <option value="learner">Learner's Permit Test</option>
+                <option value="drivers">Driver's Test</option>
               </select>
             </div>
 
@@ -89,22 +92,36 @@ function Appointments() {
               />
             </div>
 
+            <div className="form-group">
+              <label>Testing Center</label>
+              <input
+                type="text"
+                name="testingCenter"
+                value={formData.testingCenter || ''}
+                onChange={handleChange}
+                placeholder="Enter testing center"
+              />
+            </div>
+
             <button type="submit" className="submit-btn">Book</button>
           </form>
         </div>
 
         <div className="appointments-list">
           <h2>Your Appointments</h2>
-          {error && <div className="error-message">{error}</div>}
-          {loading && <Loading />}
-          {appointments.length === 0 && !loading && (
+          {isError && <div className="error-message">Failed to load appointments</div>}
+          {isLoading && <Loading />}
+          {!isLoading && appointments.length === 0 && (
             <p className="no-data">No appointments scheduled</p>
           )}
           {appointments.map(appointment => (
-            <div key={appointment.id} className="appointment-item">
+            <div key={appointment.id || appointment._id} className="appointment-item">
               <h3>{appointment.type}</h3>
               <p><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</p>
               <p><strong>Time:</strong> {appointment.time}</p>
+              {appointment.testingCenter && (
+                <p><strong>Center:</strong> {appointment.testingCenter}</p>
+              )}
               <p><strong>Status:</strong> {appointment.status}</p>
             </div>
           ))}

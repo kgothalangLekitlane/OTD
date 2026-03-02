@@ -1,27 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useApi } from '../context/ApiContext';
+import { useQuery } from '@tanstack/react-query';
 import FineCard from '../components/FineCard';
 import Loading from '../components/Loading';
 import './Fines.css';
 
 function Fines() {
-  const [fines, setFines] = useState([]);
   const [filter, setFilter] = useState('all');
-  const { request, loading, error } = useApi();
+  const { request, fetcher, loading: apiLoading, error } = useApi();
 
-  useEffect(() => {
-    fetchFines();
-  }, []);
-
-  const fetchFines = async () => {
-    try {
-      // backend exposes user-specific fines at /fines/my
-      const data = await request('GET', '/fines/my');
-      setFines(data);
-    } catch (err) {
-      console.error('Failed to fetch fines', err);
-    }
-  };
+  const { data: finesResult = { data: [] }, isLoading, isError, refetch } = useQuery(
+    ['myFines'],
+    () => fetcher('/fines/my'),
+    { staleTime: 30_000 }
+  );
+  const fines = finesResult.data || [];
 
   // normalize statuses: backend uses 'unpaid'|'paid'
   const filteredFines = filter === 'all'
@@ -31,6 +24,9 @@ function Fines() {
       if (filter === 'pending') return s === 'unpaid' || s === 'pending';
       return s === filter.toLowerCase();
     });
+
+  const displayLoading = apiLoading || isLoading;
+  const displayError = error || (isError && 'Failed to load fines');
 
   return (
     <div className="fines">
@@ -46,11 +42,11 @@ function Fines() {
         </select>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {displayError && <div className="error-message">{displayError}</div>}
       
-      {loading && <Loading />}
+      {displayLoading && <Loading />}
 
-      {!loading && filteredFines.length === 0 && (
+      {!displayLoading && filteredFines.length === 0 && (
         <p className="no-data">No fines found</p>
       )}
 

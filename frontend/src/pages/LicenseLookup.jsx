@@ -1,23 +1,26 @@
 import { useState } from 'react';
 import { useApi } from '../context/ApiContext';
+import { useQuery } from '@tanstack/react-query';
 import Loading from '../components/Loading';
 import './LicenseLookup.css';
 
 function LicenseLookup() {
   const [licenseNumber, setLicenseNumber] = useState('');
-  const [result, setResult] = useState(null);
-  const { request, loading, error } = useApi();
+  const { request, fetcher, loading, error } = useApi();
+
+  const { data: result, refetch, isFetching, isError } = useQuery(
+    ['licenseLookup', licenseNumber],
+    () => fetcher(`/license/lookup/${licenseNumber}`),
+    { enabled: false, staleTime: 60_000 }
+  );
 
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!licenseNumber.trim()) return;
-
     try {
-      // backend lookup endpoint: /license/lookup/:idNumber
-      const data = await request('GET', `/license/lookup/${licenseNumber}`);
-      setResult(data); // { user, license }
+      await refetch();
     } catch (err) {
-      setResult(null);
+      // error handled by query
     }
   };
 
@@ -36,9 +39,11 @@ function LicenseLookup() {
         <button type="submit" className="search-btn">Search</button>
       </form>
 
-      {error && <div className="error-message">{error}</div>}
+      {(isError || error) && <div className="error-message">
+        {isError ? 'Lookup failed' : error}
+      </div>}
       
-      {loading && <Loading />}
+      {(isFetching || loading) && <Loading />}
 
       {result && (
         <div className="result">

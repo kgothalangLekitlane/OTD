@@ -25,8 +25,11 @@ export const ApiProvider = ({ children }) => {
     }
   };
 
+  // exposable fetch helper for react-query
+  const fetcher = (endpoint) => api.get(endpoint).then(r => r.data);
+
   return (
-    <ApiContext.Provider value={{ request, loading, error }}>
+    <ApiContext.Provider value={{ request, fetcher, loading, error }}>
       {children}
     </ApiContext.Provider>
   );

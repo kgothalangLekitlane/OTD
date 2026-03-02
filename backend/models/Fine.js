@@ -10,4 +10,7 @@ const fineSchema = new mongoose.Schema({
   paidDate: Date
 });
 
+// index to speed up lookups for a user's fines and sorting by date
+fineSchema.index({ userId: 1, issuedDate: -1 });
+
 module.exports = mongoose.model("Fine", fineSchema);

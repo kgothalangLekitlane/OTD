@@ -22,8 +22,16 @@ exports.issueFine = async (req, res) => {
 
 exports.getMyFines = async (req, res) => {
   try {
-    const fines = await Fine.find({ userId: req.user.id });
-    res.json(fines);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 20);
+    const fines = await Fine.find({ userId: req.user.id })
+      .sort({ issuedDate: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+
+    const total = await Fine.countDocuments({ userId: req.user.id });
+    res.json({ data: fines, page, limit, total });
   } catch (err) {
     console.error('Get my fines error', err);
     res.status(500).json({ message: 'Server error' });
