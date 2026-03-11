@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
 const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -33,6 +35,16 @@ app.use("/appointments", appointmentRoutes);
 
 // health check
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+
+// Serve built frontend when available
+const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(frontendDistPath)) {
+	app.use(express.static(frontendDistPath));
+	app.get(/^\/(?!auth|license|fines|appointments|health).*/, (req, res) => {
+		res.sendFile(path.join(frontendDistPath, 'index.html'));
+	});
+}
 
 // error handler (last middleware)
 const errorHandler = require('./middleware/errorHandler');
