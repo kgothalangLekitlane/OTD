@@ -12,7 +12,9 @@ exports.lookupByIdNumber = async (req, res) => {
     const cached = await cache.get(`license:${idNumber}`);
     if (cached) return res.json(cached);
 
-    const user = await User.findOne({ idNumber }).lean();
+    const user = await User.findOne({ idNumber })
+      .select("name email idNumber role")
+      .lean();
     if (!user) return res.status(404).json({ message: "Driver not found" });
 
     const license = await License.findOne({ userId: user._id }).lean();
