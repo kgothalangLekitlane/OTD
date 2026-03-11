@@ -1,55 +1,47 @@
 # OTD
-A mock system being built for Tasks that should be easily managed electronically by one of the most important departments in the country.
+A full-stack Online Traffic Division system with a Node/Express backend and a React/Vite frontend.
 
-This repository contains a **Node/Express backend** with MongoDB and a **React/Vite frontend**. It implements user roles (driver, officer, admin), license lookups, fine management, and appointment scheduling.
+## What is operational now
+- Frontend and backend are wired together via Vite proxy (`/api` -> `http://localhost:5000`).
+- Authentication flow is integrated (`/login` + protected driver/officer routes).
+- Driver pages: dashboard, my license, my fines, book appointment.
+- Officer pages: dashboard, license lookup, issue fine.
+- Public pages: home, appointments, fines, license lookup.
 
-## Key features
-- JWT authentication with role-based authorization
-- Redis-capable caching for license lookups (in-memory fallback)
-- Request validation and centralized error handling
-- Pagination on list endpoints
-- Express middleware: rate limiting, helmet, compression, logging
-- MongoDB indexes for common queries
-- React frontend with code-splitting and React Query for data fetching
+## Project structure
+- `backend/`: Express API, JWT auth, role checks, Mongo models/routes/controllers
+- `frontend/`: React SPA with React Query, Axios client, protected route handling
 
-## Getting started
+## Quick start (run full system)
+### 1) Backend
+```bash
+cp backend/.env.example backend/.env
+# edit backend/.env and set:
+# - MONGODB_URI
+# - JWT_SECRET
 
-### Backend
+npm --prefix backend install
+npm --prefix backend run dev
+```
+Backend runs on `http://localhost:5000`.
 
-1. Copy `.env.example` to `.env` and fill in values.
-2. Install dependencies:
-   ```bash
-   cd backend
-   npm install
-   ```
-3. Run tests (requires npm available):
-   ```bash
-   npm test
-   ```
-4. Start server:
-   ```bash
-   npm run dev        # development with nodemon
-   npm start          # production mode
-   ```
+### 2) Frontend
+Open a second terminal:
+```bash
+npm --prefix frontend install
+npm --prefix frontend run dev
+```
+Frontend runs on `http://localhost:5173`.
 
-### Frontend
+The frontend defaults to `baseURL=/api`, so requests are proxied to backend automatically in development.
 
-1. Install dependencies:
-   ```bash
-   cd frontend
-   npm install
-   ```
-2. Start development server:
-   ```bash
-   npm run dev
-   ```
-3. The app will be available at `http://localhost:5173` (or as Vite reports).
+## Notes
+- If `JWT_SECRET` is missing, auth endpoints intentionally fail closed.
+- If `MONGODB_URI` is missing, DB-backed functionality will not work.
+- For production, set `VITE_API_URL` to your backend URL.
 
-### Environment variables
-See `backend/.env.example` for information on required configuration. The frontend uses `VITE_API_URL` to point to the backend.
-
-### Notes
-- For caching in production, set `REDIS_URL` to a Redis instance; otherwise the app will use a simple in-memory map.
-- React Query is used on the frontend to cache and manage server state.
-
-Enjoy hacking on this project!
+## Core API areas
+- Auth: `/auth/register`, `/auth/login`
+- License: `/license/me`, `/license/lookup/:idNumber`
+- Fines: `/fines/my`, `/fines/issue`, `/fines/pay/:fineId`
+- Appointments: `/appointments`, `/appointments/my`

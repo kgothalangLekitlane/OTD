@@ -1,19 +1,5 @@
 .footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  padding: 1.5rem 0;
-  margin-top: auto;
-  box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-}
-
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.footer p {
-  margin: 0;
-  font-size: 0.9rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
 }

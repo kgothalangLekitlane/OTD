@@ -4,6 +4,7 @@ import App from './App.jsx'
 import { ApiProvider } from './context/ApiContext'
 import { AuthProvider } from './context/AuthContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import './bootstrap-lite.css'
 
 const queryClient = new QueryClient();
 

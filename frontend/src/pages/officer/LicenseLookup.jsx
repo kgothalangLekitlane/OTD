@@ -4,38 +4,38 @@ import api from "../../api";
 export default function LicenseLookup() {
   const [idNumber, setIdNumber] = useState("");
   const [data, setData] = useState(null);
+  const [error, setError] = useState('');
 
-  const search = async () => {
-    const token = localStorage.getItem("token");
-    const res = await api.get(`/license/lookup/${idNumber}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    setData(res.data);
+  const search = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const res = await api.get(`/license/lookup/${idNumber}`);
+      setData(res.data);
+    } catch {
+      setError('Lookup failed');
+      setData(null);
+    }
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">License Lookup</h2>
+    <div className="card border-0 shadow-sm">
+      <div className="card-body p-4">
+        <h2 className="h4 mb-3">Officer License Lookup</h2>
 
-      <input
-        className="border p-2 mb-3"
-        placeholder="Enter ID Number"
-        onChange={e => setIdNumber(e.target.value)}
-      />
+        <form onSubmit={search}>
+          <input className="otd-input" placeholder="Enter ID Number" value={idNumber} onChange={e => setIdNumber(e.target.value)} required />
+          <button className="btn btn-primary" type="submit">Search</button>
+        </form>
 
-      <button
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-        onClick={search}
-      >
-        Search
-      </button>
+        {error && <p style={{ color: '#dc2626' }}>{error}</p>}
 
-      {data && (
-        <pre className="bg-gray-100 p-4 mt-4 rounded shadow">
-          {JSON.stringify(data, null, 2)}
-        </pre>
-      )}
+        {data && (
+          <pre className="card" style={{ marginTop: '1rem', padding: '1rem', background: '#f8fafc', whiteSpace: 'pre-wrap' }}>
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        )}
+      </div>
     </div>
   );
 }

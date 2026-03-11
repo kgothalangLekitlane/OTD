@@ -5,49 +5,38 @@ export default function BookAppointment() {
   const [type, setType] = useState("learner");
   const [date, setDate] = useState("");
   const [center, setCenter] = useState("");
+  const [message, setMessage] = useState('');
 
-  const book = async () => {
-    const token = localStorage.getItem("token");
-
-    await api.post(
-      "/appointments",
-      { type, date, testingCenter: center },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    alert("Appointment booked successfully!");
+  const book = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    try {
+      await api.post("/appointments", { type, date, testingCenter: center });
+      setMessage('Appointment booked successfully!');
+      setDate('');
+      setCenter('');
+    } catch {
+      setMessage('Failed to book appointment');
+    }
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">Book Appointment</h2>
+    <div className="card border-0 shadow-sm">
+      <div className="card-body p-4">
+        <h2 className="h4 mb-3">Book Appointment</h2>
+        {message && <p>{message}</p>}
 
-      <select
-        className="border p-2 mb-3"
-        onChange={e => setType(e.target.value)}
-      >
-        <option value="learner">Learner's Test</option>
-        <option value="drivers">Driver's Test</option>
-      </select>
+        <form onSubmit={book}>
+          <select className="otd-input" value={type} onChange={e => setType(e.target.value)}>
+            <option value="learner">Learner's Test</option>
+            <option value="drivers">Driver's Test</option>
+          </select>
 
-      <input
-        className="border p-2 mb-3 block"
-        type="date"
-        onChange={e => setDate(e.target.value)}
-      />
-
-      <input
-        className="border p-2 mb-3 block"
-        placeholder="Testing Center"
-        onChange={e => setCenter(e.target.value)}
-      />
-
-      <button
-        onClick={book}
-        className="bg-green-600 text-white px-4 py-2 rounded"
-      >
-        Book
-      </button>
+          <input className="otd-input" type="date" value={date} onChange={e => setDate(e.target.value)} required />
+          <input className="otd-input" placeholder="Testing Center" value={center} onChange={e => setCenter(e.target.value)} />
+          <button type="submit" className="btn btn-primary">Book</button>
+        </form>
+      </div>
     </div>
   );
 }
