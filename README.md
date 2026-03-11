@@ -45,6 +45,18 @@ This repository contains a **Node/Express backend** with MongoDB and a **React/V
    ```
 3. The app will be available at `http://localhost:5173` (or as Vite reports).
 
+
+### Hosting the site from one server
+
+To host the frontend and backend together, build the frontend and run the backend server from the repository root:
+
+```bash
+npm run build
+npm start
+```
+
+When `frontend/dist` exists, the backend serves it as static files and falls back to `index.html` for non-API routes. API routes stay available under `/auth`, `/license`, `/fines`, and `/appointments`.
+
 ### Environment variables
 See `backend/.env.example` for information on required configuration. The frontend uses `VITE_API_URL` to point to the backend.
 
