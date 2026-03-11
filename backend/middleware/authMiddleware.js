@@ -5,7 +5,11 @@ module.exports = (req, res, next) => {
   if (!token) return res.status(401).json({ message: "No token" });
 
   try {
-    const secret = process.env.JWT_SECRET || 'secret123';
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error('Missing JWT_SECRET configuration');
+      return res.status(500).json({ message: 'Server misconfiguration' });
+    }
     const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
