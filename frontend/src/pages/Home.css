@@ -1,76 +1,52 @@
 .home {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
 }
 
 .hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 4rem 2rem;
-  border-radius: 8px;
-  text-align: center;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #06b6d4 100%);
+  border-radius: 1.25rem;
+  position: relative;
+  isolation: isolate;
 }
 
-.hero h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+.hero-glow {
+  position: absolute;
+  inset: auto -20% -60% auto;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(255,255,255,0.35), rgba(255,255,255,0));
+  animation: floatGlow 6s ease-in-out infinite;
 }
 
-.hero p {
-  font-size: 1.2rem;
-}
-
-.features {
+.stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  border-radius: 1rem;
+}
+
+.stat-value {
+  color: #1d4ed8;
+  font-weight: 800;
 }
 
 .feature-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  text-align: center;
-  transition: transform 0.3s;
+  border-radius: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 18px 30px rgba(29, 78, 216, 0.15) !important;
 }
 
-.feature-card h3 {
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-.feature-card p {
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background-color: #4CAF50;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.btn:hover {
-  background-color: #45a049;
-}
-
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 1.8rem;
-  }
-
-  .features {
-    grid-template-columns: 1fr;
-  }
+@keyframes floatGlow {
+  0%,
+  100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
 }

@@ -43,10 +43,16 @@ exports.payFine = async (req, res) => {
     const { fineId } = req.params;
     if (!fineId) return res.status(400).json({ message: 'Missing fineId' });
 
-    await Fine.findByIdAndUpdate(fineId, {
+    const fine = await Fine.findOneAndUpdate({
+      _id: fineId,
+      userId: req.user.id,
+      status: "unpaid"
+    }, {
       status: "paid",
       paidDate: new Date()
-    });
+    }, { new: true });
+
+    if (!fine) return res.status(404).json({ message: 'Fine not found or already paid' });
 
     res.json({ message: "Fine paid" });
   } catch (err) {
