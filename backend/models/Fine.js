@@ -1,16 +1,18 @@
 const mongoose = require("mongoose");
 
-const fineSchema = new mongoose.Schema({
-  userId: mongoose.Schema.Types.ObjectId,
-  officerId: mongoose.Schema.Types.ObjectId,
-  amount: Number,
-  description: String,
-  status: { type: String, enum: ["unpaid", "paid"], default: "unpaid" },
-  issuedDate: Date,
-  paidDate: Date
-});
+const fineSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    officerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    amount: { type: Number, required: true, min: 0.01, max: 1000000 },
+    description: { type: String, trim: true, maxlength: 1000 },
+    status: { type: String, enum: ["unpaid", "paid"], default: "unpaid", index: true },
+    issuedDate: { type: Date, default: Date.now, index: true },
+    paidDate: Date
+  },
+  { timestamps: true }
+);
 
-// index to speed up lookups for a user's fines and sorting by date
 fineSchema.index({ userId: 1, issuedDate: -1 });
 
 module.exports = mongoose.model("Fine", fineSchema);

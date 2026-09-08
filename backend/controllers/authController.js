@@ -4,9 +4,13 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, idNumber, password } = req.body;
+    const name = req.body.name?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const idNumber = req.body.idNumber?.trim();
+    const { password } = req.body;
+
     if (!name || !email || !idNumber || !password) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     const hashed = await bcrypt.hash(password, 10);
@@ -15,8 +19,7 @@ exports.register = async (req, res) => {
       name,
       email,
       idNumber,
-      password: hashed,
-      role: "driver"
+      password: hashed
     });
 
     const safeUser = {
@@ -27,20 +30,21 @@ exports.register = async (req, res) => {
       role: user.role
     };
 
-    res.json({ message: "User registered", user: safeUser });
+    res.status(201).json({ message: "User registered", user: safeUser });
   } catch (err) {
-    console.error('Register error', err);
-    if (err.code === 11000) return res.status(409).json({ message: 'User already exists' });
-    res.status(500).json({ message: 'Server error' });
+    console.error("Register error", err);
+    if (err.code === 11000) return res.status(409).json({ message: "User already exists" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ message: 'Missing credentials' });
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
+    if (!email || !password) return res.status(400).json({ message: "Missing credentials" });
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user) return res.status(401).json({ message: "Invalid email or password" });
 
     const match = await bcrypt.compare(password, user.password);
@@ -48,13 +52,14 @@ exports.login = async (req, res) => {
 
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      console.error('Missing JWT_SECRET configuration');
-      return res.status(500).json({ message: 'Server misconfiguration' });
+      console.error("Missing JWT_SECRET configuration");
+      return res.status(500).json({ message: "Server misconfiguration" });
     }
+
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id.toString(), role: user.role },
       secret,
-      { expiresIn: '7d' }
+      { expiresIn: "7d", algorithm: "HS256" }
     );
 
     const safeUser = {
@@ -67,7 +72,7 @@ exports.login = async (req, res) => {
 
     res.json({ token, user: safeUser });
   } catch (err) {
-    console.error('Login error', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Login error", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
