@@ -1,20 +1,31 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "No token" });
+  const authorization = req.headers.authorization || "";
+  const [scheme, token] = authorization.trim().split(/\s+/);
+
+  if (scheme !== "Bearer" || !token) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error("Missing JWT_SECRET configuration");
+    return res.status(500).json({ message: "Server misconfiguration" });
+  }
 
   try {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      console.error('Missing JWT_SECRET configuration');
-      return res.status(500).json({ message: 'Server misconfiguration' });
+    const decoded = jwt.verify(token, secret, {
+      algorithms: ["HS256"]
+    });
+
+    if (!decoded || !decoded.id || !decoded.role) {
+      return res.status(401).json({ message: "Invalid token" });
     }
-    const decoded = jwt.verify(token, secret);
+
     req.user = decoded;
     next();
   } catch (err) {
-    console.error('Auth middleware error', err && err.message);
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
