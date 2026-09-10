@@ -16,34 +16,21 @@ const fineRoutes = require("./routes/fineRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const userRoutes = require("./routes/userRoutes");
+const auditRoutes = require("./routes/auditRoutes");
 
 const app = express();
 
 app.disable("x-powered-by");
 app.use(helmet());
 
-// Use an explicit allowlist in production. Local development remains convenient.
-const configuredOrigins = (process.env.CORS_ORIGINS || "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-
+const configuredOrigins = (process.env.CORS_ORIGINS || "").split(",").map((origin) => origin.trim()).filter(Boolean);
 const isProduction = process.env.NODE_ENV === "production";
-if (isProduction && configuredOrigins.length === 0) {
-  console.warn("CORS_ORIGINS is not configured; cross-origin browser requests will be blocked in production.");
-}
+if (isProduction && configuredOrigins.length === 0) console.warn("CORS_ORIGINS is not configured; cross-origin browser requests will be blocked in production.");
 
 app.use(cors({
   origin: configuredOrigins.length
-    ? (origin, callback) => {
-        if (!origin || configuredOrigins.includes(origin)) return callback(null, true);
-        return callback(new Error("CORS origin not allowed"));
-      }
-    : (origin, callback) => {
-        if (!isProduction) return callback(null, true);
-        if (!origin) return callback(null, true);
-        return callback(new Error("CORS origin not allowed"));
-      },
+    ? (origin, callback) => configuredOrigins.includes(origin) || !origin ? callback(null, true) : callback(new Error("CORS origin not allowed"))
+    : (origin, callback) => !isProduction || !origin ? callback(null, true) : callback(new Error("CORS origin not allowed")),
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 204
@@ -69,13 +56,14 @@ app.use("/fines", fineRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/users", userRoutes);
+app.use("/audit", auditRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 const frontendDistPath = path.join(__dirname, "..", "frontend", "dist");
 if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
-  app.get(/^\/(?!auth|license|fines|appointments|dashboard|users|health).*/, (req, res) => {
+  app.get(/^\/(?!auth|license|fines|appointments|dashboard|users|audit|health).*/, (req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
@@ -84,9 +72,6 @@ const errorHandler = require("./middleware/errorHandler");
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-
-if (require.main === module) {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+if (require.main === module) app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 module.exports = app;
