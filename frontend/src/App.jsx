@@ -6,6 +6,8 @@ import './App.css';
 
 // Lazy-load page components to reduce initial bundle size
 const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 const LicenseLookup = lazy(() => import('./pages/LicenseLookup'));
 const Appointments = lazy(() => import('./pages/Appointments'));
 const Fines = lazy(() => import('./pages/Fines'));
@@ -16,9 +18,11 @@ function App() {
     <Router>
       <Navbar />
       <main className="app-container">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="py-5 text-center">Loading...</div>}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/license-lookup" element={<LicenseLookup />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/fines" element={<Fines />} />
