@@ -20,7 +20,7 @@ function Dashboard() {
 
   const appointmentsQuery = useQuery({
     queryKey: ['dashboard', 'appointments'],
-    queryFn: () => fetcher('/appointments/my'),
+    queryFn: () => fetcher('/appointments/my?limit=20'),
     enabled: isAuthenticated && user?.role === 'driver',
     staleTime: 30_000,
   });
@@ -60,6 +60,7 @@ function Dashboard() {
           <h2>Operations dashboard</h2>
           <p>Your account is signed in as <strong>{user?.role}</strong>. Use the services below to access the parts of OTD currently available to your role.</p>
           <div className="dashboard-actions">
+            <Link to="/operations" className="dashboard-action primary">Open Operations</Link>
             <Link to="/license-lookup" className="dashboard-action">License Lookup</Link>
             <Link to="/appointments" className="dashboard-action">Appointments</Link>
             <Link to="/fines" className="dashboard-action">Fines</Link>
