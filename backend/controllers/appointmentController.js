@@ -1,4 +1,5 @@
 const Appointment = require("../models/Appointment");
+const { recordAudit } = require("../services/auditService");
 
 const allowedStatuses = ["scheduled", "completed", "cancelled"];
 
@@ -19,8 +20,7 @@ exports.myAppointments = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, parseInt(req.query.limit) || 20);
-    const appts = await Appointment.find({ userId: req.user.id })
-      .sort({ date: -1 }).skip((page - 1) * limit).limit(limit).lean();
+    const appts = await Appointment.find({ userId: req.user.id }).sort({ date: -1 }).skip((page - 1) * limit).limit(limit).lean();
     const total = await Appointment.countDocuments({ userId: req.user.id });
     res.json({ data: appts, page, limit, total });
   } catch (err) {
@@ -43,8 +43,7 @@ exports.allAppointments = async (req, res) => {
       filter.type = req.query.type;
     }
     const [data, total] = await Promise.all([
-      Appointment.find(filter).populate("userId", "name email idNumber role")
-        .sort({ date: 1, time: 1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Appointment.find(filter).populate("userId", "name email idNumber role").sort({ date: 1, time: 1 }).skip((page - 1) * limit).limit(limit).lean(),
       Appointment.countDocuments(filter)
     ]);
     res.json({ data, page, limit, total });
@@ -58,10 +57,17 @@ exports.updateAppointmentStatus = async (req, res) => {
   try {
     const { status } = req.body;
     if (!allowedStatuses.includes(status)) return res.status(400).json({ message: "Invalid appointment status" });
-    const appointment = await Appointment.findByIdAndUpdate(
-      req.params.id, { status }, { new: true, runValidators: true }
-    ).populate("userId", "name email idNumber role");
+    const appointment = await Appointment.findByIdAndUpdate(req.params.id, { status }, { new: true, runValidators: true }).populate("userId", "name email idNumber role");
     if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+
+    await recordAudit({
+      actorId: req.user.id,
+      action: `appointment.${status}`,
+      resourceType: "Appointment",
+      resourceId: appointment._id,
+      details: { previousStatus: "unknown", newStatus: status, userId: appointment.userId?._id || appointment.userId }
+    });
+
     res.json(appointment);
   } catch (err) {
     if (err.name === "CastError") return res.status(400).json({ message: "Invalid appointment ID" });
