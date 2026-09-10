@@ -17,10 +17,16 @@ router.use(authLimiter);
 router.post(
   "/register",
   [
-    body("name").trim().isLength({ min: 1, max: 100 }).withMessage("Name required"),
+    body("name").trim().isLength({ min: 2, max: 100 }).withMessage("Name must be 2-100 characters"),
     body("email").trim().isEmail().normalizeEmail().withMessage("Valid email required"),
     body("idNumber").trim().isLength({ min: 3, max: 50 }).withMessage("ID number required"),
-    body("password").isLength({ min: 8, max: 128 }).withMessage("Password must be 8-128 characters")
+    body("password")
+      .isLength({ min: 8, max: 128 })
+      .withMessage("Password must be 8-128 characters")
+      .matches(/[A-Za-z]/)
+      .withMessage("Password must contain at least one letter")
+      .matches(/\d/)
+      .withMessage("Password must contain at least one number")
   ],
   validate,
   register
