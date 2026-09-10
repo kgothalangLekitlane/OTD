@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useApi } from '../context/ApiContext';
 import StatusBadge from '../components/StatusBadge';
 import EmptyState from '../components/EmptyState';
+import OperationsSummary from '../components/OperationsSummary';
 import './OfficerDashboard.css';
 
 function OfficerDashboard() {
@@ -25,7 +26,10 @@ function OfficerDashboard() {
 
   const issueFine = useMutation({
     mutationFn: (payload) => request('POST', '/fines/issue', payload),
-    onSuccess: () => setFine({ amount: '', description: '' })
+    onSuccess: () => {
+      setFine({ amount: '', description: '' });
+      queryClient.invalidateQueries({ queryKey: ['operations-summary'] });
+    }
   });
 
   const appointments = useQuery({
@@ -36,7 +40,10 @@ function OfficerDashboard() {
 
   const updateAppointment = useMutation({
     mutationFn: ({ id, status }) => request('PATCH', `/appointments/${id}/status`, { status }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['operations-appointments'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['operations-appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['operations-summary'] });
+    }
   });
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -65,6 +72,8 @@ function OfficerDashboard() {
         </div>
         <div className="dashboard-role">{user.role}</div>
       </section>
+
+      <OperationsSummary />
 
       <section className="officer-card">
         <h2>Driver lookup</h2>
