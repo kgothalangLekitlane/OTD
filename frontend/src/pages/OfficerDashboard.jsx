@@ -7,6 +7,7 @@ import StatusBadge from '../components/StatusBadge';
 import EmptyState from '../components/EmptyState';
 import OperationsSummary from '../components/OperationsSummary';
 import UserDirectory from '../components/UserDirectory';
+import AuditActivity from '../components/AuditActivity';
 import './OfficerDashboard.css';
 
 function OfficerDashboard() {
@@ -30,6 +31,7 @@ function OfficerDashboard() {
     onSuccess: () => {
       setFine({ amount: '', description: '' });
       queryClient.invalidateQueries({ queryKey: ['operations-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
     }
   });
 
@@ -44,6 +46,7 @@ function OfficerDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['operations-appointments'] });
       queryClient.invalidateQueries({ queryKey: ['operations-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
     }
   });
 
@@ -76,7 +79,12 @@ function OfficerDashboard() {
 
       <OperationsSummary />
 
-      {user.role === 'admin' && <UserDirectory />}
+      {user.role === 'admin' && (
+        <>
+          <UserDirectory />
+          <AuditActivity />
+        </>
+      )}
 
       <section className="officer-card">
         <h2>Driver lookup</h2>
