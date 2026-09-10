@@ -20,11 +20,16 @@ const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
 
-// CORS is open for local development unless an explicit allowlist is configured.
+// Use an explicit allowlist in production. Local development remains convenient.
 const configuredOrigins = (process.env.CORS_ORIGINS || "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
+
+const isProduction = process.env.NODE_ENV === "production";
+if (isProduction && configuredOrigins.length === 0) {
+  console.warn("CORS_ORIGINS is not configured; cross-origin browser requests will be blocked in production.");
+}
 
 app.use(cors({
   origin: configuredOrigins.length
@@ -33,7 +38,12 @@ app.use(cors({
         if (!origin || configuredOrigins.includes(origin)) return callback(null, true);
         return callback(new Error("CORS origin not allowed"));
       }
-    : true,
+    : (origin, callback) => {
+        // In development, allow all origins. In production, require the allowlist above.
+        if (!isProduction) return callback(null, true);
+        if (!origin) return callback(null, true);
+        return callback(new Error("CORS origin not allowed"));
+      },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 204
