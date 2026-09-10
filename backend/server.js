@@ -15,6 +15,7 @@ const licenseRoutes = require("./routes/licenseRoutes");
 const fineRoutes = require("./routes/fineRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -67,13 +68,14 @@ app.use("/license", licenseRoutes);
 app.use("/fines", fineRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/users", userRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 const frontendDistPath = path.join(__dirname, "..", "frontend", "dist");
 if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
-  app.get(/^\/(?!auth|license|fines|appointments|dashboard|health).*/, (req, res) => {
+  app.get(/^\/(?!auth|license|fines|appointments|dashboard|users|health).*/, (req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
