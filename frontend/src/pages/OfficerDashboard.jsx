@@ -1,18 +1,21 @@
 import { useContext, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthContext } from '../context/AuthContext';
 import { useApi } from '../context/ApiContext';
 import StatusBadge from '../components/StatusBadge';
+import EmptyState from '../components/EmptyState';
 import './OfficerDashboard.css';
 
 function OfficerDashboard() {
   const { user, isAuthenticated } = useContext(AuthContext);
-  const { request } = useApi();
+  const { request, fetcher } = useApi();
+  const queryClient = useQueryClient();
   const [idNumber, setIdNumber] = useState('');
   const [driver, setDriver] = useState(null);
   const [lookupError, setLookupError] = useState('');
   const [fine, setFine] = useState({ amount: '', description: '' });
+  const [appointmentFilter, setAppointmentFilter] = useState('scheduled');
 
   const lookup = useMutation({
     mutationFn: (value) => request('GET', `/license/lookup/${encodeURIComponent(value)}`),
@@ -23,6 +26,17 @@ function OfficerDashboard() {
   const issueFine = useMutation({
     mutationFn: (payload) => request('POST', '/fines/issue', payload),
     onSuccess: () => setFine({ amount: '', description: '' })
+  });
+
+  const appointments = useQuery({
+    queryKey: ['operations-appointments', appointmentFilter],
+    queryFn: () => fetcher(`/appointments/all?limit=50${appointmentFilter ? `&status=${appointmentFilter}` : ''}`),
+    enabled: isAuthenticated && ['officer', 'admin'].includes(user?.role)
+  });
+
+  const updateAppointment = useMutation({
+    mutationFn: ({ id, status }) => request('PATCH', `/appointments/${id}/status`, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['operations-appointments'] })
   });
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -38,6 +52,8 @@ function OfficerDashboard() {
     if (!driver?.user?._id || user?.role !== 'officer') return;
     issueFine.mutate({ userId: driver.user._id, amount: Number(fine.amount), description: fine.description.trim() });
   };
+
+  const appointmentRows = appointments.data?.data || [];
 
   return (
     <div className="officer-dashboard">
@@ -87,6 +103,55 @@ function OfficerDashboard() {
           </div>
         </section>
       )}
+
+      <section className="officer-card appointments-panel">
+        <div className="card-heading">
+          <div><span className="dashboard-eyebrow">OPERATIONS</span><h2>Appointment management</h2></div>
+          <select value={appointmentFilter} onChange={(e) => setAppointmentFilter(e.target.value)} aria-label="Filter appointments by status">
+            <option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="">All</option>
+          </select>
+        </div>
+
+        {appointments.isLoading && <p className="officer-muted">Loading appointments...</p>}
+        {appointments.isError && <p className="officer-error" role="alert">{appointments.error?.response?.data?.message || 'Unable to load appointments.'}</p>}
+        {!appointments.isLoading && !appointments.isError && appointmentRows.length === 0 && <EmptyState title="No appointments found" description="There are no appointments matching this status." />}
+
+        {appointmentRows.length > 0 && (
+          <div className="appointments-table-wrap">
+            <table className="appointments-table">
+              <thead><tr><th>Applicant</th><th>Type</th><th>Date</th><th>Time</th><th>Testing centre</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                {appointmentRows.map((appointment) => {
+                  const applicant = appointment.userId;
+                  return (
+                    <tr key={appointment._id}>
+                      <td><strong>{applicant?.name || 'Unknown applicant'}</strong><small>{applicant?.idNumber || applicant?.email || '—'}</small></td>
+                      <td>{appointment.type === 'drivers' ? 'Driver' : 'Learner'}</td>
+                      <td>{new Date(appointment.date).toLocaleDateString()}</td>
+                      <td>{appointment.time || '—'}</td>
+                      <td>{appointment.testingCenter || '—'}</td>
+                      <td><StatusBadge status={appointment.status}>{appointment.status}</StatusBadge></td>
+                      <td>
+                        {appointment.status === 'scheduled' ? (
+                          <div className="appointment-actions">
+                            <button type="button" onClick={() => updateAppointment.mutate({ id: appointment._id, status: 'completed' })} disabled={updateAppointment.isPending}>Complete</button>
+                            <button type="button" className="secondary-action" onClick={() => updateAppointment.mutate({ id: appointment._id, status: 'cancelled' })} disabled={updateAppointment.isPending}>Cancel</button>
+                          </div>
+                        ) : appointment.status === 'cancelled' ? (
+                          <button type="button" className="secondary-action" onClick={() => updateAppointment.mutate({ id: appointment._id, status: 'scheduled' })} disabled={updateAppointment.isPending}>Restore</button>
+                        ) : (
+                          <button type="button" className="secondary-action" onClick={() => updateAppointment.mutate({ id: appointment._id, status: 'scheduled' })} disabled={updateAppointment.isPending}>Reopen</button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {updateAppointment.isError && <p className="officer-error" role="alert">{updateAppointment.error?.response?.data?.message || 'Unable to update appointment.'}</p>}
+      </section>
     </div>
   );
 }
