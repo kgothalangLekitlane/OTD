@@ -6,6 +6,7 @@ import { useApi } from '../context/ApiContext';
 import StatusBadge from '../components/StatusBadge';
 import EmptyState from '../components/EmptyState';
 import OperationsSummary from '../components/OperationsSummary';
+import UserDirectory from '../components/UserDirectory';
 import './OfficerDashboard.css';
 
 function OfficerDashboard() {
@@ -74,6 +75,8 @@ function OfficerDashboard() {
       </section>
 
       <OperationsSummary />
+
+      {user.role === 'admin' && <UserDirectory />}
 
       <section className="officer-card">
         <h2>Driver lookup</h2>
