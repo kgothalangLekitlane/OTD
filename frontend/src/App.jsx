@@ -4,10 +4,10 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import './App.css';
 
-// Lazy-load page components to reduce initial bundle size
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const OfficerDashboard = lazy(() => import('./pages/OfficerDashboard'));
 const LicenseLookup = lazy(() => import('./pages/LicenseLookup'));
 const Appointments = lazy(() => import('./pages/Appointments'));
 const Fines = lazy(() => import('./pages/Fines'));
@@ -23,6 +23,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/operations" element={<OfficerDashboard />} />
             <Route path="/license-lookup" element={<LicenseLookup />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/fines" element={<Fines />} />
