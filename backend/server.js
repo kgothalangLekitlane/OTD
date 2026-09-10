@@ -14,6 +14,7 @@ const authRoutes = require("./routes/authRoutes");
 const licenseRoutes = require("./routes/licenseRoutes");
 const fineRoutes = require("./routes/fineRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const app = express();
 
@@ -34,12 +35,10 @@ if (isProduction && configuredOrigins.length === 0) {
 app.use(cors({
   origin: configuredOrigins.length
     ? (origin, callback) => {
-        // Allow non-browser/server-to-server requests with no Origin header.
         if (!origin || configuredOrigins.includes(origin)) return callback(null, true);
         return callback(new Error("CORS origin not allowed"));
       }
     : (origin, callback) => {
-        // In development, allow all origins. In production, require the allowlist above.
         if (!isProduction) return callback(null, true);
         if (!origin) return callback(null, true);
         return callback(new Error("CORS origin not allowed"));
@@ -67,13 +66,14 @@ app.use("/auth", authRoutes);
 app.use("/license", licenseRoutes);
 app.use("/fines", fineRoutes);
 app.use("/appointments", appointmentRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 const frontendDistPath = path.join(__dirname, "..", "frontend", "dist");
 if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
-  app.get(/^\/(?!auth|license|fines|appointments|health).*/, (req, res) => {
+  app.get(/^\/(?!auth|license|fines|appointments|dashboard|health).*/, (req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
