@@ -19,6 +19,7 @@ function Navbar() {
           <ul className="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
             <li className="nav-item"><NavLink to="/" className="nav-link" onClick={closeMenu}>Home</NavLink></li>
             {isAuthenticated && <li className="nav-item"><NavLink to="/dashboard" className="nav-link" onClick={closeMenu}>Dashboard</NavLink></li>}
+            {isAuthenticated && ['officer', 'admin'].includes(user?.role) && <li className="nav-item"><NavLink to="/operations" className="nav-link" onClick={closeMenu}>Operations</NavLink></li>}
             <li className="nav-item"><NavLink to="/license-lookup" className="nav-link" onClick={closeMenu}>License Lookup</NavLink></li>
             <li className="nav-item"><NavLink to="/appointments" className="nav-link" onClick={closeMenu}>Appointments</NavLink></li>
             <li className="nav-item"><NavLink to="/fines" className="nav-link" onClick={closeMenu}>Fines</NavLink></li>
