@@ -1,14 +1,18 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('user')) || null;
-    } catch { return null; }
-  });
+const readUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user')) || null;
+  } catch {
+    localStorage.removeItem('user');
+    return null;
+  }
+};
 
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(readUser);
   const [token, setToken] = useState(() => localStorage.getItem('token') || null);
 
   useEffect(() => {
@@ -21,21 +25,33 @@ export const AuthProvider = ({ children }) => {
     else localStorage.removeItem('user');
   }, [user]);
 
-  const login = ({ token: t, user: u }) => {
-    setToken(t);
-    setUser(u);
+  useEffect(() => {
+    const expireSession = () => {
+      setToken(null);
+      setUser(null);
+    };
+    window.addEventListener('otd:session-expired', expireSession);
+    return () => window.removeEventListener('otd:session-expired', expireSession);
+  }, []);
+
+  const login = ({ token: nextToken, user: nextUser }) => {
+    setToken(nextToken);
+    setUser(nextUser);
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/';
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      login,
+      logout,
+      isAuthenticated: Boolean(token && user)
+    }}>
       {children}
     </AuthContext.Provider>
   );
