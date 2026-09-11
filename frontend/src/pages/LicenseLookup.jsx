@@ -6,43 +6,58 @@ import StatusBadge from '../components/StatusBadge';
 import './LicenseLookup.css';
 
 function LicenseLookup() {
-  const [licenseNumber, setLicenseNumber] = useState('');
-  const { fetcher, loading, error } = useApi();
+  const [idNumber, setIdNumber] = useState('');
+  const { fetcher } = useApi();
 
-  const { data: result, refetch, isFetching, isError, error: queryError } = useQuery({
-    queryKey: ['licenseLookup', licenseNumber],
-    queryFn: () => fetcher(`/license/lookup/${encodeURIComponent(licenseNumber.trim())}`),
+  const lookupQuery = useQuery({
+    queryKey: ['licenseLookup', idNumber.trim()],
+    queryFn: () => fetcher(`/license/lookup/${encodeURIComponent(idNumber.trim())}`),
     enabled: false,
     staleTime: 60_000,
     retry: false,
   });
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!licenseNumber.trim()) return;
-    await refetch();
+  const handleSearch = async (event) => {
+    event.preventDefault();
+    const value = idNumber.trim();
+    if (!value) return;
+    await lookupQuery.refetch();
   };
+
+  const result = lookupQuery.data;
+  const errorMessage = lookupQuery.error?.response?.data?.message || lookupQuery.error?.message || 'No matching licence record was found.';
 
   return (
     <div className="license-lookup">
-      <h1>License Lookup</h1>
+      <div className="page-heading">
+        <span className="dashboard-eyebrow">OTD VERIFICATION</span>
+        <h1>Licence Lookup</h1>
+        <p>Search an authorised driver record using the driver's ID number.</p>
+      </div>
+
       <form onSubmit={handleSearch} className="search-form">
-        <input type="text" placeholder="Enter ID number" value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} className="search-input" aria-label="ID number" required />
-        <button type="submit" className="search-btn" disabled={isFetching}> {isFetching ? 'Searching...' : 'Search'} </button>
+        <label htmlFor="license-id" className="visually-hidden">Driver ID number</label>
+        <input id="license-id" type="text" inputMode="numeric" autoComplete="off" placeholder="Enter ID number" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} className="search-input" required />
+        <button type="submit" className="search-btn" disabled={lookupQuery.isFetching}>
+          {lookupQuery.isFetching ? 'Searching...' : 'Search'}
+        </button>
       </form>
 
-      {(isError || error) && <div className="error-message" role="alert">{queryError?.response?.data?.message || error || 'Lookup failed. Please check the ID number and try again.'}</div>}
-      {(isFetching || loading) && <Loading />}
+      {lookupQuery.isError && <div className="error-message" role="alert">{errorMessage}</div>}
+      {lookupQuery.isFetching && <Loading />}
 
-      {result && (
+      {result && !lookupQuery.isFetching && (
         <div className="result">
-          <h2>License Information</h2>
+          <div className="result-heading">
+            <div><span className="dashboard-eyebrow">VERIFIED RECORD</span><h2>Licence Information</h2></div>
+            <StatusBadge status={result.license?.status}>{result.license?.status || 'Unknown'}</StatusBadge>
+          </div>
           <div className="info-grid">
-            <div className="info-item"><strong>Driver:</strong><p>{result.user?.name || 'N/A'}</p></div>
-            <div className="info-item"><strong>License Number:</strong><p>{result.license?.licenseNumber || 'N/A'}</p></div>
-            <div className="info-item"><strong>Status:</strong><p><StatusBadge status={result.license?.status}>{result.license?.status || 'N/A'}</StatusBadge></p></div>
-            <div className="info-item"><strong>Expiry Date:</strong><p>{result.license?.expiryDate ? new Date(result.license.expiryDate).toLocaleDateString() : 'N/A'}</p></div>
-            <div className="info-item"><strong>Classes:</strong><p>{result.license?.vehicleClasses?.join(', ') || 'N/A'}</p></div>
+            <div className="info-item"><strong>Driver</strong><p>{result.user?.name || 'N/A'}</p></div>
+            <div className="info-item"><strong>Licence Number</strong><p>{result.license?.licenseNumber || 'N/A'}</p></div>
+            <div className="info-item"><strong>Status</strong><p>{result.license?.status || 'N/A'}</p></div>
+            <div className="info-item"><strong>Expiry Date</strong><p>{result.license?.expiryDate ? new Date(result.license.expiryDate).toLocaleDateString() : 'N/A'}</p></div>
+            <div className="info-item"><strong>Vehicle Classes</strong><p>{result.license?.vehicleClasses?.join(', ') || 'N/A'}</p></div>
           </div>
         </div>
       )}
