@@ -1,59 +1,74 @@
 .fines {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .fines h1 {
-  color: #333;
-  margin-bottom: 2rem;
+  color: #172033;
+  margin-bottom: 0.5rem;
+}
+
+.fines > p {
+  color: #64748b;
+  margin-bottom: 1.5rem;
 }
 
 .fines-filter {
   display: flex;
   gap: 1rem;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
   background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
 }
 
 .fines-filter label {
-  color: #333;
-  font-weight: bold;
+  color: #334155;
+  font-weight: 600;
 }
 
 .fines-filter select {
-  padding: 0.5rem;
-  border: 2px solid #ddd;
-  border-radius: 4px;
+  min-width: 190px;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
   cursor: pointer;
-  transition: border-color 0.3s;
 }
 
-.fines-filter select:focus {
-  outline: none;
-  border-color: #4CAF50;
+.fines-filter select:focus,
+.fines-filter select:focus-visible {
+  outline: 3px solid rgba(13, 110, 253, 0.15);
+  border-color: #0d6efd;
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 1rem;
-  border-radius: 4px;
+  background: #fff1f2;
+  color: #9f1239;
+  border: 1px solid #fecdd3;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
   margin-bottom: 1rem;
-}
-
-.no-data {
-  text-align: center;
-  color: #999;
-  padding: 3rem;
-  background: white;
-  border-radius: 4px;
 }
 
 .fines-list {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
+}
+
+@media (max-width: 600px) {
+  .fines-filter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fines-filter select {
+    width: 100%;
+    min-width: 0;
+  }
 }
