@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 const Home = lazy(() => import('./pages/Home'));
@@ -18,15 +19,15 @@ function App() {
     <Router>
       <Navbar />
       <main className="app-container">
-        <Suspense fallback={<div className="py-5 text-center">Loading...</div>}>
+        <Suspense fallback={<div className="page-loading" role="status">Loading OTD…</div>}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/operations" element={<OfficerDashboard />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/operations" element={<ProtectedRoute roles={["officer", "admin"]}><OfficerDashboard /></ProtectedRoute>} />
             <Route path="/license-lookup" element={<LicenseLookup />} />
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/fines" element={<Fines />} />
+            <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
+            <Route path="/fines" element={<ProtectedRoute><Fines /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
