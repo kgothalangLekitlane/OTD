@@ -107,7 +107,7 @@
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-.result-heading {
+.licence-card-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 1.5rem;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff}.licence-card-label{display:block;margin-bottom:.35rem;color:#bfdbfe;font-size:.65rem;font-weight:800;letter-spacing:.14em}.licence-card-top strong{font-size:1.15rem;letter-spacing:.02em}.licence-card-top .status-badge{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.25)}.result-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -209,7 +209,7 @@
     width: 100%;
   }
 
-  .result-heading {
+  .licence-card-top{align-items:flex-start;flex-direction:column}.result-heading {
     flex-direction: column;
   }
 
