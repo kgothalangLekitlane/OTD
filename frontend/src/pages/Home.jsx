@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import './Home.css';
 
 const quickStats = [
@@ -8,13 +10,17 @@ const quickStats = [
 ];
 
 function Home() {
+  const { isAuthenticated } = useContext(AuthContext);
+
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+
   return (
     <div className="home">
       <section className="hero card border-0 text-white overflow-hidden">
         <div className="card-body p-4 p-md-5">
           <span className="badge rounded-pill text-bg-light text-primary mb-3">Online Traffic Division</span>
           <h1 className="display-4 fw-bold">Your traffic services, online.</h1>
-          <p className="lead mb-4">Create your free OTD account to manage licenses, appointments and traffic fines from one secure portal.</p>
+          <p className="lead mb-4">Create your OTD account to manage your licence, appointments and traffic fines from one secure portal.</p>
           <div className="d-flex flex-wrap gap-2">
             <Link to="/register" className="btn btn-light btn-lg px-4">Create an account</Link>
             <Link to="/login" className="btn btn-outline-light btn-lg px-4">Sign in</Link>
@@ -35,30 +41,9 @@ function Home() {
       </section>
 
       <section className="features row g-4">
-        <div className="col-md-4">
-          <div className="feature-card card h-100 border-0 shadow-sm">
-            <div className="card-body p-4">
-              <h3 className="h4">License services</h3>
-              <p className="text-muted">Access license information and keep track of important details.</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="feature-card card h-100 border-0 shadow-sm">
-            <div className="card-body p-4">
-              <h3 className="h4">Appointments</h3>
-              <p className="text-muted">Schedule learner and driver test appointments online.</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="feature-card card h-100 border-0 shadow-sm">
-            <div className="card-body p-4">
-              <h3 className="h4">Traffic fines</h3>
-              <p className="text-muted">View your outstanding fines and manage your traffic-related services.</p>
-            </div>
-          </div>
-        </div>
+        <div className="col-md-4"><div className="feature-card card h-100 border-0 shadow-sm"><div className="card-body p-4"><h3 className="h4">Licence services</h3><p className="text-muted mb-0">Access your licence information and important details.</p></div></div></div>
+        <div className="col-md-4"><div className="feature-card card h-100 border-0 shadow-sm"><div className="card-body p-4"><h3 className="h4">Appointments</h3><p className="text-muted mb-0">Schedule learner and driver testing appointments online.</p></div></div></div>
+        <div className="col-md-4"><div className="feature-card card h-100 border-0 shadow-sm"><div className="card-body p-4"><h3 className="h4">Traffic fines</h3><p className="text-muted mb-0">View and manage traffic fines associated with your account.</p></div></div></div>
       </section>
     </div>
   );
