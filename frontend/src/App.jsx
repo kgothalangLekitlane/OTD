@@ -27,7 +27,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/operations" element={<ProtectedRoute roles={["officer", "admin"]}><OfficerDashboard /></ProtectedRoute>} />
-            <Route path="/license-lookup" element={<ProtectedRoute roles={["officer", "admin"]}><LicenseLookup /></ProtectedRoute>} />
+            <Route path="/license-lookup" element={<ProtectedRoute><LicenseLookup /></ProtectedRoute>} />
             <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
             <Route path="/fines" element={<ProtectedRoute><Fines /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
