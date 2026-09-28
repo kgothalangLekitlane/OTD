@@ -79,7 +79,7 @@ function Dashboard() {
 
           <section className="dashboard-grid">
             <div className="dashboard-panel">
-              <div className="panel-heading"><h2>Licence</h2><Link to="/licensing/my-licence">Lookup</Link></div>
+              <div className="panel-heading"><h2>Licence</h2><Link to="/licensing/my-licence">View details</Link></div>
               {licenseQuery.isError ? (
                 <p className="dashboard-muted">No licence record is available yet.</p>
               ) : (
