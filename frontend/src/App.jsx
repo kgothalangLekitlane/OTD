@@ -7,6 +7,7 @@ import './App.css';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const OfficerDashboard = lazy(() => import('./pages/OfficerDashboard'));
 const LicenseLookup = lazy(() => import('./pages/LicenseLookup'));
@@ -22,6 +23,7 @@ function App() {
         <Suspense fallback={<div className="page-loading" role="status">Loading OTD…</div>}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/operations" element={<ProtectedRoute roles={["officer", "admin"]}><OfficerDashboard /></ProtectedRoute>} />
