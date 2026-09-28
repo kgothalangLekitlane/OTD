@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 const configuredUrl = import.meta.env.VITE_API_URL?.trim();
-// Local development uses Vite's /api proxy; production should set VITE_API_URL.
-const API_BASE_URL = (configuredUrl || '/api').replace(/\/$/, '');
+// Local development uses Vite's /api proxy. In production, the Express server serves
+// the frontend and API from the same origin, so an empty base URL keeps requests same-origin.
+const API_BASE_URL = (configuredUrl || (import.meta.env.PROD ? '' : '/api')).replace(/\/$/, '');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
