@@ -61,7 +61,7 @@ function Dashboard() {
           <p>Your account is signed in as <strong>{user?.role}</strong>. Use the services below to access the parts of OTD currently available to your role.</p>
           <div className="dashboard-actions">
             <Link to="/operations" className="dashboard-action primary">Open Operations</Link>
-            <Link to="/licensing" className="dashboard-action">License Lookup</Link>
+            <Link to="/licensing/lookup" className="dashboard-action">Licence Lookup</Link>
             <Link to="/appointments" className="dashboard-action">Appointments</Link>
             <Link to="/fines" className="dashboard-action">Fines</Link>
           </div>
