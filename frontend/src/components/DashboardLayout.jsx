@@ -29,7 +29,7 @@ export default function DashboardLayout() {
           <NavLink to="/fines" className={linkClass} onClick={() => setOpen(false)}><Icon>▤</Icon>Fines</NavLink>
           {isStaff && <NavLink to="/operations" className={linkClass} onClick={() => setOpen(false)}><Icon>⚙</Icon>Operations</NavLink>}
         </nav>
-        <div className="sidebar-bottom"><button type="button" className="dashboard-signout" onClick={signOut}><Icon>↪</Icon>Sign out</button></div>
+        <div className="sidebar-bottom"><NavLink to="/profile" className={linkClass} onClick={() => setOpen(false)}><Icon>⚙</Icon>Account</NavLink><button type="button" className="dashboard-signout" onClick={signOut}><Icon>↪</Icon>Sign out</button></div>
       </aside>
       {open && <button className="sidebar-overlay" aria-label="Close navigation" onClick={() => setOpen(false)} />}
       <section className="dashboard-main">
