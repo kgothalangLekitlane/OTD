@@ -11,12 +11,15 @@ function LicenseDetails({ result }) {
 
   return (
     <div className="result">
+      <div className="licence-card-top">
+        <div><span className="licence-card-label">OTD DIGITAL LICENCE</span><strong>{license?.licenseNumber || 'Licence record'}</strong></div>
+        <StatusBadge status={license?.status}>{license?.status || 'Unknown'}</StatusBadge>
+      </div>
       <div className="result-heading">
         <div>
           <span className="dashboard-eyebrow">VERIFIED RECORD</span>
           <h2>Licence Information</h2>
         </div>
-        <StatusBadge status={license?.status}>{license?.status || 'Unknown'}</StatusBadge>
       </div>
       <div className="info-grid">
         <div className="info-item"><strong>Driver</strong><p>{result?.user?.name || 'N/A'}</p></div>
