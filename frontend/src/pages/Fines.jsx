@@ -43,6 +43,7 @@ function Fines() {
     <div className="fines">
       <h1>Traffic Fines</h1>
       <p>Review your traffic fines and payment status.</p>
+      <div className="fines-summary"><div><span>Outstanding fines</span><strong>{unpaidCount}</strong></div><div><span>Total records</span><strong>{fines.length}</strong></div><div><span>View</span><strong>{filter === 'all' ? 'All' : filter}</strong></div></div>
       <div className="fines-filter">
         <label htmlFor="fine-status-filter">Filter by status:</label>
         <select id="fine-status-filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
@@ -59,7 +60,7 @@ function Fines() {
         {filteredFines.map(fine => (
           <div key={fine._id || fine.id}>
             <FineCard fine={fine} />
-            <div className="d-flex align-items-center justify-content-between gap-2 mt-2 mb-3">
+            <div className="fine-actions">
               <StatusBadge status={fine.status}>{fine.status || 'Unknown'}</StatusBadge>
               {fine.status === 'unpaid' && <button type="button" className="btn btn-primary btn-sm" onClick={() => payFine(fine._id || fine.id)} disabled={payMutation.isPending}>{payMutation.isPending ? 'Processing...' : 'Pay fine'}</button>}
             </div>
