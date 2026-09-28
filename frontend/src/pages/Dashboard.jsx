@@ -61,7 +61,7 @@ function Dashboard() {
           <p>Your account is signed in as <strong>{user?.role}</strong>. Use the services below to access the parts of OTD currently available to your role.</p>
           <div className="dashboard-actions">
             <Link to="/operations" className="dashboard-action primary">Open Operations</Link>
-            <Link to="/license-lookup" className="dashboard-action">License Lookup</Link>
+            <Link to="/licensing" className="dashboard-action">License Lookup</Link>
             <Link to="/appointments" className="dashboard-action">Appointments</Link>
             <Link to="/fines" className="dashboard-action">Fines</Link>
           </div>
@@ -79,7 +79,7 @@ function Dashboard() {
 
           <section className="dashboard-grid">
             <div className="dashboard-panel">
-              <div className="panel-heading"><h2>Licence</h2><Link to="/license-lookup">Lookup</Link></div>
+              <div className="panel-heading"><h2>Licence</h2><Link to="/licensing/my-licence">Lookup</Link></div>
               {licenseQuery.isError ? (
                 <p className="dashboard-muted">No licence record is available yet.</p>
               ) : (
@@ -128,7 +128,7 @@ function Dashboard() {
           <section className="dashboard-actions">
             <Link to="/appointments" className="dashboard-action primary">Book an appointment</Link>
             <Link to="/fines" className="dashboard-action">Manage fines</Link>
-            <Link to="/license-lookup" className="dashboard-action">Check licence</Link>
+            <Link to="/licensing/my-licence" className="dashboard-action">Check licence</Link>
           </section>
         </>
       )}
