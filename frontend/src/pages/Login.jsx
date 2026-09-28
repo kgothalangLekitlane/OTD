@@ -1,16 +1,18 @@
 import { useContext, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import api, { getApiErrorMessage } from '../api';
 import { AuthContext } from '../context/AuthContext';
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
+  const { login, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   const submit = async (event) => {
     event.preventDefault();
@@ -25,7 +27,8 @@ export default function Login() {
     try {
       const res = await api.post('/auth/login', { email: normalizedEmail, password });
       login(res.data);
-      navigate(location.state?.from || '/dashboard', { replace: true });
+      const destination = typeof location.state?.from === 'string' ? location.state.from : '/dashboard';
+      navigate(destination, { replace: true });
     } catch (err) {
       setError(getApiErrorMessage(err, 'Invalid email or password.'));
     } finally {
@@ -42,22 +45,14 @@ export default function Login() {
             <h1 className="h2 fw-bold mb-2">Welcome back</h1>
             <p className="text-muted mb-0">Sign in to manage your OTD services.</p>
           </div>
-
+          {location.state?.registered && <div className="alert alert-success" role="status">Account created successfully. You can now sign in.</div>}
           {error && <div className="alert alert-danger" role="alert">{error}</div>}
-
           <form onSubmit={submit} noValidate>
-            <div className="mb-3">
-              <label htmlFor="login-email" className="form-label fw-semibold">Email</label>
-              <input id="login-email" className="form-control form-control-lg" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="you@example.com" required />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="login-password" className="form-label fw-semibold">Password</label>
-              <input id="login-password" className="form-control form-control-lg" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" placeholder="Enter your password" required />
-            </div>
-            <button type="submit" className="btn btn-primary btn-lg w-100" disabled={submitting}>
-              {submitting ? 'Signing in…' : 'Sign in'}
-            </button>
+            <div className="mb-3"><label htmlFor="login-email" className="form-label fw-semibold">Email</label><input id="login-email" className="form-control form-control-lg" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="you@example.com" required /></div>
+            <div className="mb-4"><label htmlFor="login-password" className="form-label fw-semibold">Password</label><input id="login-password" className="form-control form-control-lg" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" placeholder="Enter your password" required /></div>
+            <button type="submit" className="btn btn-primary btn-lg w-100" disabled={submitting}>{submitting ? 'Signing in…' : 'Sign in'}</button>
           </form>
+          <p className="text-center text-muted mt-4 mb-0">Don't have an account? <Link to="/register" className="fw-semibold">Create one</Link></p>
         </div>
       </div>
     </div>
