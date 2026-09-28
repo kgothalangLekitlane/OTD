@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -14,5 +14,5 @@ export default function ProtectedRoute({ children, roles }) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return children;
+  return children || <Outlet />;
 }
