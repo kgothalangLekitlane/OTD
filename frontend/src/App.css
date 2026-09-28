@@ -33,6 +33,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   margin: 0 auto;
 }
 
+.app-container:has(.dashboard-shell) {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+}
+
 .page-loading {
   min-height: 45vh;
   display: grid;
